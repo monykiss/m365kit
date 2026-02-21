@@ -9,10 +9,14 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/klytics/m365kit/cmd/ai"
+	cmdauth "github.com/klytics/m365kit/cmd/auth"
 	"github.com/klytics/m365kit/cmd/batch"
 	"github.com/klytics/m365kit/cmd/diff"
 	"github.com/klytics/m365kit/cmd/excel"
+	cmdffs "github.com/klytics/m365kit/cmd/fs"
+	"github.com/klytics/m365kit/cmd/onedrive"
 	"github.com/klytics/m365kit/cmd/pipeline"
+	"github.com/klytics/m365kit/cmd/sharepoint"
 	"github.com/klytics/m365kit/cmd/pptx"
 	"github.com/klytics/m365kit/cmd/send"
 	"github.com/klytics/m365kit/cmd/version"
@@ -57,10 +61,14 @@ Read, write, analyze, transform, and automate .docx .xlsx .pptx from your termin
 	rootCmd.AddCommand(excel.NewCommand())
 	rootCmd.AddCommand(pptx.NewCommand())
 	rootCmd.AddCommand(ai.NewCommand())
+	rootCmd.AddCommand(cmdauth.NewCommand())
 	rootCmd.AddCommand(pipeline.NewCommand())
 	rootCmd.AddCommand(batch.NewCommand())
 	rootCmd.AddCommand(diff.NewCommand())
+	rootCmd.AddCommand(cmdffs.NewCommand())
 	rootCmd.AddCommand(send.NewCommand())
+	rootCmd.AddCommand(onedrive.NewCommand())
+	rootCmd.AddCommand(sharepoint.NewCommand())
 	rootCmd.AddCommand(version.NewCommand())
 
 	return rootCmd

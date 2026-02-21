@@ -2,8 +2,8 @@
   <h1 align="center">M365Kit</h1>
   <p align="center"><strong>The terminal is the new Office.</strong></p>
   <p align="center">
-    AI-native CLI for Microsoft 365 documents. Read, write, analyze, transform, and automate<br>
-    <code>.docx</code> <code>.xlsx</code> <code>.pptx</code> from your terminal.
+    AI-native CLI for Microsoft 365. Read, write, analyze, transform, and automate<br>
+    <code>.docx</code> <code>.xlsx</code> <code>.pptx</code> — locally and in the cloud via Microsoft Graph.
   </p>
 </p>
 
@@ -18,18 +18,22 @@
 ---
 
 ```bash
-# Read a Word doc and get structured JSON
-kit word read contract.docx --json | jq .wordCount
+# Authenticate with Microsoft 365
+kit auth login
 
-# AI-powered document summary in one pipe
-kit word read contract.docx | kit ai summarize
+# List your OneDrive files
+kit onedrive ls /Documents
 
-# Extract entities from any document
-kit ai extract --fields "parties,dates,amounts" contract.docx
+# Download a contract, analyze it with AI, email the summary
+kit onedrive get Documents/contract.docx -o contract.docx
+kit word read contract.docx | kit ai summarize > summary.txt
+kit send --to counsel@company.com --subject "Contract Review" --body "$(cat summary.txt)"
+
+# Scan local files, find duplicates, organize
+kit fs scan ~/Documents -r --hash
+kit fs dedupe ~/Documents -r --dry-run
+kit fs organize ~/Documents -r --strategy by-type
 ```
-
-<!-- TODO: Replace with actual demo GIF -->
-<!-- ![M365Kit Demo](docs/assets/demo.gif) -->
 
 ---
 
@@ -67,72 +71,135 @@ make build
 
 ## Quick Start
 
-```bash
-# 1. Read a Word document
-kit word read report.docx
+### Local Documents
 
-# 2. Read as structured JSON
+```bash
+# Read a Word document
 kit word read report.docx --json | jq .paragraphs
 
-# 3. Read Excel data
+# Read Excel data
 kit excel read data.xlsx --sheet "Revenue" --json
 
-# 4. AI summary (set your API key first)
+# AI summary (set your API key first)
 export ANTHROPIC_API_KEY=sk-ant-...
 kit word read contract.docx | kit ai summarize
 
-# 5. Run an automation pipeline
-kit pipeline run examples/pipelines/contract_review.yaml --verbose
+# Compare two documents
+kit diff old-version.docx new-version.docx --stats
+```
+
+### Microsoft 365 Cloud
+
+```bash
+# Authenticate via Azure AD device code flow
+export KIT_AZURE_CLIENT_ID="your-app-client-id"
+kit auth login
+
+# OneDrive operations
+kit onedrive ls /                        # List root
+kit onedrive get Documents/report.docx   # Download
+kit onedrive put ./report.docx           # Upload
+kit onedrive recent                      # Recent files
+kit onedrive search "Q1 budget"          # Search
+kit onedrive share Documents/report.docx # Create share link
+
+# SharePoint operations
+kit sharepoint sites                     # List sites
+kit sharepoint libs <site-id>            # List document libraries
+kit sharepoint ls <site-id> /Reports     # Browse library files
+kit sharepoint get <site-id> report.docx # Download from library
+kit sharepoint audit <site-id>           # Activity log
+```
+
+### File System Intelligence
+
+```bash
+# Scan for Office documents
+kit fs scan ~/Documents -r
+
+# Rename to consistent convention
+kit fs rename ~/Documents -r --pattern kebab --dry-run
+
+# Find and remove duplicates
+kit fs dedupe ~/Documents -r --dry-run
+
+# Find stale files (not modified in 90 days)
+kit fs stale ~/Documents -r --days 90
+
+# Organize into folders by type
+kit fs organize ~/Documents -r --strategy by-type --dry-run
+
+# Generate JSON manifest
+kit fs manifest ~/Documents -r > manifest.json
 ```
 
 ---
 
 ## Features
 
-| Feature | Status | Command |
-|---------|--------|---------|
-| Read Word (.docx) | ✅ | `kit word read` |
-| Read Excel (.xlsx) | ✅ | `kit excel read` |
-| Read PowerPoint (.pptx) | ✅ | `kit pptx read` |
-| AI Summarize | ✅ | `kit ai summarize` |
-| AI Analyze | ✅ | `kit ai analyze` |
-| AI Entity Extraction | ✅ | `kit ai extract` |
-| AI Q&A | ✅ | `kit ai ask` |
-| Pipeline Workflows | ✅ | `kit pipeline run` |
-| JSON output (all commands) | ✅ | `--json` flag |
-| Markdown output | ✅ | `--markdown` flag |
-| Stdin/stdout piping | ✅ | All commands |
-| Anthropic (Claude) | ✅ | Default provider |
-| OpenAI (GPT-4o) | ✅ | `--provider openai` |
-| Ollama (local) | ✅ | `--provider ollama` |
-| Write Word (.docx) | ✅ | `kit word write` |
-| Edit Word (.docx) | ✅ | `kit word edit` |
-| Write Excel (.xlsx) | ✅ | `kit excel write` |
-| Batch processing | ✅ | `kit batch` |
-| Pipeline dry-run | ✅ | `--dry-run` flag |
-| Generate PowerPoint | 🚧 | Coming soon |
+| Category | Feature | Command |
+|----------|---------|---------|
+| **Documents** | Read Word (.docx) | `kit word read` |
+| | Write Word (.docx) | `kit word write` |
+| | Edit Word (.docx) | `kit word edit` |
+| | Read Excel (.xlsx) | `kit excel read` |
+| | Write Excel (.xlsx) | `kit excel write` |
+| | Analyze Excel (.xlsx) | `kit excel analyze` |
+| | Read PowerPoint (.pptx) | `kit pptx read` |
+| | Generate PowerPoint | `kit pptx generate` |
+| | Compare documents | `kit diff` |
+| **AI** | Summarize | `kit ai summarize` |
+| | Analyze | `kit ai analyze` |
+| | Entity extraction | `kit ai extract` |
+| | Q&A | `kit ai ask` |
+| | Anthropic / OpenAI / Ollama | `--provider` flag |
+| **Microsoft 365** | OAuth device code flow | `kit auth login` |
+| | OneDrive (ls/get/put/search/share) | `kit onedrive` |
+| | SharePoint (sites/libs/audit) | `kit sharepoint` |
+| **File System** | Scan documents | `kit fs scan` |
+| | Rename (kebab/snake/date) | `kit fs rename` |
+| | Deduplicate | `kit fs dedupe` |
+| | Find stale files | `kit fs stale` |
+| | Organize into folders | `kit fs organize` |
+| | JSON manifest | `kit fs manifest` |
+| **Automation** | Pipeline workflows | `kit pipeline run` |
+| | Batch processing | `kit batch` |
+| | Email with AI draft | `kit send` |
+| **Output** | JSON (all commands) | `--json` flag |
+| | Markdown | `--markdown` flag |
+| | Stdin/stdout piping | All commands |
 
 ---
 
-## AI Provider Setup
+## Authentication Setup
 
-### Anthropic (default)
+### Microsoft 365 (OneDrive / SharePoint)
+
+1. Register an Azure AD app at [portal.azure.com](https://portal.azure.com)
+2. Add delegated permissions: `Files.ReadWrite`, `Sites.ReadWrite.All`, `User.Read`
+3. Enable "Allow public client flows" for device code auth
 
 ```bash
+export KIT_AZURE_CLIENT_ID="your-app-client-id"
+kit auth login        # Opens device code flow
+kit auth whoami       # Verify identity
+kit auth status       # Check token expiry
+kit auth refresh      # Refresh token
+kit auth logout       # Delete token
+```
+
+### AI Providers
+
+```bash
+# Anthropic (default)
 export ANTHROPIC_API_KEY=sk-ant-api03-...
 kit ai summarize document.txt
-```
 
-### OpenAI
-
-```bash
+# OpenAI
 export OPENAI_API_KEY=sk-...
 kit ai summarize document.txt --provider openai --model gpt-4o
-```
 
-### Ollama (local, no API key needed)
-
-```bash
+# Ollama (local, no API key)
 ollama pull llama3.1
 kit ai summarize document.txt --provider ollama --model llama3.1
 ```
@@ -164,7 +231,6 @@ steps:
       prompt: "Identify potential risks and unusual clauses"
 ```
 
-Run it:
 ```bash
 kit pipeline run contract_review.yaml --verbose
 ```
@@ -178,11 +244,16 @@ See more examples in [`examples/pipelines/`](examples/pipelines/).
 Every command is pipe-friendly. Compose them:
 
 ```bash
-# Chain read → summarize → save
+# Chain read -> summarize -> save
 kit word read contract.docx | kit ai summarize > summary.txt
 
-# Excel data → AI analysis
+# Excel data -> AI analysis
 kit excel read metrics.xlsx --json | kit ai analyze --prompt "Find anomalies"
+
+# Download from OneDrive -> analyze -> email results
+kit onedrive get Reports/Q1.xlsx -o q1.xlsx
+kit excel analyze q1.xlsx --prompt "Key trends" > analysis.txt
+kit send --to team@company.com --subject "Q1 Analysis" --attach q1.xlsx --body "$(cat analysis.txt)"
 
 # Batch process with shell
 for f in contracts/*.docx; do
@@ -201,10 +272,22 @@ m365kit/
 │   ├── excel/              # kit excel read/write/analyze
 │   ├── pptx/               # kit pptx read/generate
 │   ├── ai/                 # kit ai summarize/analyze/extract/ask
-│   └── pipeline/           # kit pipeline run
+│   ├── auth/               # kit auth login/whoami/status/logout/refresh
+│   ├── onedrive/           # kit onedrive ls/get/put/recent/search/share
+│   ├── sharepoint/         # kit sharepoint sites/libs/ls/get/put/audit
+│   ├── fs/                 # kit fs scan/rename/dedupe/stale/organize/manifest
+│   ├── diff/               # kit diff
+│   ├── send/               # kit send
+│   ├── pipeline/           # kit pipeline run
+│   └── batch/              # kit batch
 ├── internal/
+│   ├── auth/               # Microsoft OAuth device code flow
+│   ├── graph/              # OneDrive + SharePoint Graph API clients
+│   ├── fs/                 # File system scanner, renamer, deduper, organizer
 │   ├── formats/            # OOXML parsers (docx, xlsx, pptx)
 │   ├── ai/                 # Provider interface + implementations
+│   ├── email/              # SMTP email client
+│   ├── bridge/             # Go→Node subprocess bridge
 │   └── pipeline/           # YAML workflow engine
 ├── packages/core/          # TypeScript package (@m365kit/core)
 ├── examples/               # Pipeline YAML examples
@@ -233,5 +316,5 @@ make test
 ---
 
 <p align="center">
-  Built by <a href="https://github.com/klytics"><strong>KLYTICS</strong></a> 🇵🇷
+  Built by <a href="https://github.com/klytics"><strong>KLYTICS</strong></a>
 </p>
