@@ -17,10 +17,17 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
-      - name: Build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build Go
         run: make build
-      - name: Test
+      - name: Build TypeScript bridge
+        run: cd packages/core && npm ci && npm run build
+      - name: Test Go
         run: go test ./... -v -count=1
+      - name: Test TypeScript
+        run: cd packages/core && npx jest --no-cache
       - name: Vet
         run: go vet ./...
 

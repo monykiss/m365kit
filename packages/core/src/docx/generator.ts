@@ -52,19 +52,11 @@ export class DOCXGenerator {
         italics: p.italic,
       });
 
-      const options: ConstructorParameters<typeof Paragraph>[0] = {
+      return new Paragraph({
         children: [run],
-      };
-
-      if (p.heading && headingMap[p.heading]) {
-        options.heading = headingMap[p.heading];
-      }
-
-      if (p.alignment && alignmentMap[p.alignment]) {
-        options.alignment = alignmentMap[p.alignment];
-      }
-
-      return new Paragraph(options);
+        ...(p.heading && headingMap[p.heading] ? { heading: headingMap[p.heading] } : {}),
+        ...(p.alignment && alignmentMap[p.alignment] ? { alignment: alignmentMap[p.alignment] } : {}),
+      });
     });
   }
 

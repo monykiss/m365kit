@@ -4,12 +4,28 @@
   "description": "TypeScript core library for M365Kit — PPTX and DOCX generation",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "m365kit-bridge": "dist/cli.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["m365", "pptx", "docx", "office", "powerpoint", "word"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monykiss/m365kit.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/monykiss/m365kit#readme",
+  "bugs": {
+    "url": "https://github.com/monykiss/m365kit/issues"
+  },
+  "keywords": ["m365", "pptx", "docx", "office", "powerpoint", "word", "cli"],
   "author": "KLYTICS LLC",
   "license": "MIT",
   "dependencies": {
