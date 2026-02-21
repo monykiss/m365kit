@@ -10,9 +10,11 @@ import (
 
 	"github.com/klytics/m365kit/cmd/ai"
 	"github.com/klytics/m365kit/cmd/batch"
+	"github.com/klytics/m365kit/cmd/diff"
 	"github.com/klytics/m365kit/cmd/excel"
 	"github.com/klytics/m365kit/cmd/pipeline"
 	"github.com/klytics/m365kit/cmd/pptx"
+	"github.com/klytics/m365kit/cmd/send"
 	"github.com/klytics/m365kit/cmd/version"
 	"github.com/klytics/m365kit/cmd/word"
 )
@@ -57,6 +59,8 @@ Read, write, analyze, transform, and automate .docx .xlsx .pptx from your termin
 	rootCmd.AddCommand(ai.NewCommand())
 	rootCmd.AddCommand(pipeline.NewCommand())
 	rootCmd.AddCommand(batch.NewCommand())
+	rootCmd.AddCommand(diff.NewCommand())
+	rootCmd.AddCommand(send.NewCommand())
 	rootCmd.AddCommand(version.NewCommand())
 
 	return rootCmd

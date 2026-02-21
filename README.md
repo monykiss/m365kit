@@ -35,27 +35,27 @@ kit ai extract --fields "parties,dates,amounts" contract.docx
 
 ## Install
 
-**Homebrew** (macOS / Linux):
+### Homebrew (macOS / Linux)
 ```bash
-brew install monykiss/tap/kit
+brew install monykiss/tap/m365kit
 ```
 
-**Go Install**:
+### Go
 ```bash
 go install github.com/monykiss/m365kit@latest
 ```
 
-**NPM** (TypeScript package only):
+### Docker *(coming soon)*
+```bash
+docker pull monykiss/m365kit
+```
+
+### TypeScript
 ```bash
 npm install @m365kit/core
 ```
 
-**Docker**:
-```bash
-docker run --rm -v $(pwd):/data ghcr.io/monykiss/m365kit kit word read /data/doc.docx
-```
-
-**Build from source**:
+### Build from source
 ```bash
 git clone https://github.com/monykiss/m365kit.git
 cd m365kit
