@@ -1,0 +1,31 @@
+name: Auto-Summarize DOCX
+
+on:
+  push:
+    paths:
+      - '**.docx'
+
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install M365Kit
+        run: go install github.com/klytics/m365kit/cmd@latest
+
+      - name: Find changed DOCX files
+        id: changed
+        run: |
+          echo "files=$(git diff --name-only HEAD~1 HEAD -- '*.docx' | tr '\n' ' ')" >> $GITHUB_OUTPUT
+
+      - name: Summarize documents
+        if: steps.changed.outputs.files != ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          for file in ${{ steps.changed.outputs.files }}; do
+            echo "## Summary: $file"
+            kit word read "$file" | kit ai summarize
+            echo ""
+          done

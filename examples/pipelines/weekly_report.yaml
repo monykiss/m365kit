@@ -1,0 +1,19 @@
+name: weekly_kpi_report
+version: "1.0"
+steps:
+  - id: extract_data
+    action: excel.read
+    input: ./data/Q4_metrics.xlsx
+    options:
+      sheet: Revenue
+
+  - id: analyze
+    action: ai.analyze
+    input: ${{ steps.extract_data.output }}
+    options:
+      prompt: "Identify top 3 performance trends and any anomalies"
+
+  - id: generate_report
+    action: word.write
+    template: ./templates/kpi_report.docx
+    data: ${{ steps.analyze.output }}

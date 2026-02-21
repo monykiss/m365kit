@@ -1,0 +1,14 @@
+name: word_to_summary
+version: "1.0"
+steps:
+  - id: read_doc
+    action: word.read
+    input: testdata/sample.docx
+    options:
+      format: text
+
+  - id: summarize
+    action: ai.summarize
+    input: ${{ steps.read_doc.output }}
+    options:
+      focus: "key points, dates"

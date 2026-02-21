@@ -1,0 +1,18 @@
+name: deck_from_data
+version: "1.0"
+steps:
+  - id: read_data
+    action: excel.read
+    input: ./data/quarterly_results.xlsx
+    options:
+      sheet: Summary
+
+  - id: generate_insights
+    action: ai.analyze
+    input: ${{ steps.read_data.output }}
+    options:
+      prompt: "Create 5 key talking points for an executive presentation"
+
+  - id: summarize
+    action: ai.summarize
+    input: ${{ steps.generate_insights.output }}
