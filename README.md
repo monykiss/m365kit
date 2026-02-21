@@ -105,10 +105,12 @@ kit pipeline run examples/pipelines/contract_review.yaml --verbose
 | Anthropic (Claude) | ✅ | Default provider |
 | OpenAI (GPT-4o) | ✅ | `--provider openai` |
 | Ollama (local) | ✅ | `--provider ollama` |
-| Write Word (.docx) | 🚧 | Coming soon |
-| Write Excel (.xlsx) | 🚧 | Coming soon |
+| Write Word (.docx) | ✅ | `kit word write` |
+| Edit Word (.docx) | ✅ | `kit word edit` |
+| Write Excel (.xlsx) | ✅ | `kit excel write` |
+| Batch processing | ✅ | `kit batch` |
+| Pipeline dry-run | ✅ | `--dry-run` flag |
 | Generate PowerPoint | 🚧 | Coming soon |
-| Batch processing | 🚧 | Coming soon |
 
 ---
 
