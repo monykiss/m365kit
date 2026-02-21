@@ -80,10 +80,10 @@ func EditBytes(data []byte, replacements map[string]string) ([]byte, int, error)
 
 		// Create new file in output ZIP preserving the original header
 		header := &zip.FileHeader{
-			Name:   f.Name,
-			Method: f.Method,
+			Name:     f.Name,
+			Method:   f.Method,
+			Modified: f.Modified,
 		}
-		header.SetModTime(f.Modified)
 
 		w, err := writer.CreateHeader(header)
 		if err != nil {

@@ -66,19 +66,6 @@ type Document struct {
 
 // OOXML internal types for unmarshalling
 
-type xmlDocument struct {
-	Body xmlBody `xml:"body"`
-}
-
-type xmlBody struct {
-	Items []xmlBodyItem `xml:",any"`
-}
-
-type xmlBodyItem struct {
-	XMLName xml.Name
-	Inner   []byte `xml:",innerxml"`
-}
-
 type xmlParagraph struct {
 	Properties xmlParagraphProps `xml:"pPr"`
 	Runs       []xmlRun          `xml:"r"`
@@ -164,13 +151,8 @@ func Parse(data []byte) (*Document, error) {
 
 	doc := &Document{}
 
-	// Parse core properties (metadata)
-	if err := parseCoreProperties(reader, doc); err != nil {
-		// Non-fatal: metadata is optional
-		if verbose := false; verbose {
-			_ = err
-		}
-	}
+	// Parse core properties (metadata) — non-fatal if missing
+	_ = parseCoreProperties(reader, doc)
 
 	// Parse document body
 	if err := parseDocumentBody(reader, doc); err != nil {
@@ -208,13 +190,7 @@ func parseCoreProperties(reader *zip.Reader, doc *Document) error {
 				return err
 			}
 
-			doc.Metadata = Metadata{
-				Title:       props.Title,
-				Creator:     props.Creator,
-				Description: props.Description,
-				Created:     props.Created,
-				Modified:    props.Modified,
-			}
+			doc.Metadata = Metadata(props)
 			return nil
 		}
 	}

@@ -67,7 +67,7 @@ func (p *OllamaProvider) Infer(ctx context.Context, system string, messages []Me
 		msgs = append(msgs, ollamaMessage{Role: "system", Content: system})
 	}
 	for _, m := range messages {
-		msgs = append(msgs, ollamaMessage{Role: m.Role, Content: m.Content})
+		msgs = append(msgs, ollamaMessage(m))
 	}
 
 	reqBody := ollamaRequest{
@@ -127,7 +127,7 @@ func (p *OllamaProvider) Stream(ctx context.Context, system string, messages []M
 		msgs = append(msgs, ollamaMessage{Role: "system", Content: system})
 	}
 	for _, m := range messages {
-		msgs = append(msgs, ollamaMessage{Role: m.Role, Content: m.Content})
+		msgs = append(msgs, ollamaMessage(m))
 	}
 
 	reqBody := ollamaRequest{

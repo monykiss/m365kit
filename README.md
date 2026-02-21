@@ -8,11 +8,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/klytics/m365kit/actions"><img src="https://github.com/klytics/m365kit/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/monykiss/m365kit/actions"><img src="https://github.com/monykiss/m365kit/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://www.npmjs.com/package/@m365kit/core"><img src="https://img.shields.io/npm/v/@m365kit/core" alt="npm"></a>
-  <a href="https://github.com/klytics/m365kit/releases"><img src="https://img.shields.io/github/v/release/klytics/m365kit" alt="Release"></a>
-  <a href="https://github.com/klytics/m365kit/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <a href="https://github.com/klytics/m365kit"><img src="https://img.shields.io/github/stars/klytics/m365kit?style=social" alt="Stars"></a>
+  <a href="https://github.com/monykiss/m365kit/releases"><img src="https://img.shields.io/github/v/release/monykiss/m365kit" alt="Release"></a>
+  <a href="https://github.com/monykiss/m365kit/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <a href="https://github.com/monykiss/m365kit"><img src="https://img.shields.io/github/stars/monykiss/m365kit?style=social" alt="Stars"></a>
 </p>
 
 ---
@@ -37,12 +37,12 @@ kit ai extract --fields "parties,dates,amounts" contract.docx
 
 **Homebrew** (macOS / Linux):
 ```bash
-brew install klytics/tap/kit
+brew install monykiss/tap/kit
 ```
 
 **Go Install**:
 ```bash
-go install github.com/klytics/m365kit@latest
+go install github.com/monykiss/m365kit@latest
 ```
 
 **NPM** (TypeScript package only):
@@ -52,12 +52,12 @@ npm install @m365kit/core
 
 **Docker**:
 ```bash
-docker run --rm -v $(pwd):/data ghcr.io/klytics/m365kit kit word read /data/doc.docx
+docker run --rm -v $(pwd):/data ghcr.io/monykiss/m365kit kit word read /data/doc.docx
 ```
 
 **Build from source**:
 ```bash
-git clone https://github.com/klytics/m365kit.git
+git clone https://github.com/monykiss/m365kit.git
 cd m365kit
 make build
 ./bin/kit --help
@@ -218,7 +218,7 @@ m365kit/
 Contributions are welcome! See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for guidelines.
 
 ```bash
-git clone https://github.com/klytics/m365kit.git
+git clone https://github.com/monykiss/m365kit.git
 cd m365kit
 make build
 make test

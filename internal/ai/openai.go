@@ -80,7 +80,7 @@ func (p *OpenAIProvider) Infer(ctx context.Context, system string, messages []Me
 		msgs = append(msgs, openaiMessage{Role: "system", Content: system})
 	}
 	for _, m := range messages {
-		msgs = append(msgs, openaiMessage{Role: m.Role, Content: m.Content})
+		msgs = append(msgs, openaiMessage(m))
 	}
 
 	reqBody := openaiRequest{
@@ -149,7 +149,7 @@ func (p *OpenAIProvider) Stream(ctx context.Context, system string, messages []M
 		msgs = append(msgs, openaiMessage{Role: "system", Content: system})
 	}
 	for _, m := range messages {
-		msgs = append(msgs, openaiMessage{Role: m.Role, Content: m.Content})
+		msgs = append(msgs, openaiMessage(m))
 	}
 
 	reqBody := openaiRequest{

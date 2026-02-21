@@ -85,7 +85,7 @@ func (p *AnthropicProvider) Infer(ctx context.Context, system string, messages [
 
 	msgs := make([]anthropicMessage, len(messages))
 	for i, m := range messages {
-		msgs[i] = anthropicMessage{Role: m.Role, Content: m.Content}
+		msgs[i] = anthropicMessage(m)
 	}
 
 	reqBody := anthropicRequest{
@@ -134,7 +134,7 @@ func (p *AnthropicProvider) Stream(ctx context.Context, system string, messages 
 
 	msgs := make([]anthropicMessage, len(messages))
 	for i, m := range messages {
-		msgs[i] = anthropicMessage{Role: m.Role, Content: m.Content}
+		msgs[i] = anthropicMessage(m)
 	}
 
 	reqBody := anthropicRequest{
