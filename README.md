@@ -64,6 +64,12 @@ go install github.com/monykiss/m365kit@latest
 npm install @m365kit/core
 ```
 
+### Docker
+```bash
+docker pull ghcr.io/monykiss/m365kit:latest
+docker run --rm -v "$PWD:/data" ghcr.io/monykiss/m365kit word read /data/report.docx
+```
+
 ### Build from source
 ```bash
 git clone https://github.com/monykiss/m365kit.git
@@ -122,6 +128,50 @@ kit teams post --team Engineering --channel general --message "Report ready"
 kit teams dm --to alice@company.com --message "Contract is ready"
 ```
 
+### Document Templates
+
+```bash
+# Extract variables from a template
+kit template vars contract_template.docx
+
+# Apply variables to a template
+kit template apply contract_template.docx \
+  --set name="John Doe" \
+  --set company="Acme Corp" \
+  --set date="2025-01-15" \
+  -o filled_contract.docx
+
+# Register a template in the library
+kit template add invoice --description "Monthly invoice" invoice_template.docx
+
+# Generate reports from data + template
+kit report generate --template quarterly.docx --data sales.csv -o report.docx
+kit report preview --data sales.csv   # Preview available variables
+```
+
+### File Watching
+
+```bash
+# Watch a directory for new documents
+kit watch start ./incoming -r --ext docx,xlsx --action log
+
+# Check watcher status
+kit watch status
+
+# Stop the watcher
+kit watch stop
+```
+
+### Docker
+
+```bash
+# Run kit in Docker
+docker compose run kit word read /data/report.docx
+
+# Start a file watcher daemon
+docker compose up -d watch
+```
+
 ### File System Intelligence
 
 ```bash
@@ -174,12 +224,21 @@ kit fs manifest ~/Documents -r > manifest.json
 | | Find stale files | `kit fs stale` |
 | | Organize into folders | `kit fs organize` |
 | | JSON manifest | `kit fs manifest` |
+| **Templates** | Variable extraction | `kit template vars` |
+| | Apply variables | `kit template apply` |
+| | Template library | `kit template add/list/show/remove` |
+| | Report generation | `kit report generate` |
+| | Data preview | `kit report preview` |
 | **Automation** | Pipeline workflows | `kit pipeline run` |
 | | Batch processing | `kit batch` |
 | | Email with AI draft | `kit send` |
+| | File watcher | `kit watch start/stop/status` |
 | **Setup** | Config wizard | `kit config init` |
 | | Shell completions | `kit completion` |
+| | Health check | `kit doctor` |
 | | Update checker | `kit update check` |
+| **Deploy** | Docker image | `Dockerfile` |
+| | Docker Compose | `docker-compose.yml` |
 | **Output** | JSON (all commands) | `--json` flag |
 | | Markdown | `--markdown` flag |
 | | Stdin/stdout piping | All commands |
@@ -294,6 +353,10 @@ m365kit/
 │   ├── teams/              # kit teams list/post/share/dm
 │   ├── config/             # kit config init/show/set/validate
 │   ├── completion/         # kit completion bash/zsh/fish/powershell
+│   ├── template/           # kit template vars/apply/add/list/show/remove
+│   ├── report/             # kit report generate/preview
+│   ├── watch/              # kit watch start/stop/status
+│   ├── doctor/             # kit doctor
 │   ├── update/             # kit update check/install
 │   ├── diff/               # kit diff
 │   ├── send/               # kit send
@@ -302,6 +365,9 @@ m365kit/
 ├── internal/
 │   ├── auth/               # Microsoft OAuth device code flow
 │   ├── graph/              # OneDrive + SharePoint + Teams Graph API clients
+│   ├── template/           # Template engine with run-splitting fix
+│   ├── report/             # Report generator (CSV/JSON data + templates)
+│   ├── watch/              # File system watcher with fsnotify
 │   ├── update/             # Update checker
 │   ├── fs/                 # File system scanner, renamer, deduper, organizer
 │   ├── formats/            # OOXML parsers (docx, xlsx, pptx)

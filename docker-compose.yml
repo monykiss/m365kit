@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  kit:
+    build:
+      context: .
+      args:
+        VERSION: "${KIT_VERSION:-dev}"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - KIT_AZURE_CLIENT_ID=${KIT_AZURE_CLIENT_ID:-}
+      - KIT_MODEL=${KIT_MODEL:-}
+      - KIT_PROVIDER=${KIT_PROVIDER:-}
+    volumes:
+      - ./data:/data
+      - kit-config:/home/kit/.kit
+    working_dir: /data
+
+  watch:
+    build:
+      context: .
+      args:
+        VERSION: "${KIT_VERSION:-dev}"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - KIT_AZURE_CLIENT_ID=${KIT_AZURE_CLIENT_ID:-}
+    volumes:
+      - ./data:/data
+      - kit-config:/home/kit/.kit
+    working_dir: /data
+    entrypoint: ["kit", "watch", "start", "/data", "-r"]
+    restart: unless-stopped
+
+volumes:
+  kit-config:

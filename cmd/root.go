@@ -14,16 +14,20 @@ import (
 	"github.com/klytics/m365kit/cmd/completion"
 	cmdconfig "github.com/klytics/m365kit/cmd/config"
 	"github.com/klytics/m365kit/cmd/diff"
+	"github.com/klytics/m365kit/cmd/doctor"
 	"github.com/klytics/m365kit/cmd/excel"
 	cmdffs "github.com/klytics/m365kit/cmd/fs"
 	"github.com/klytics/m365kit/cmd/onedrive"
 	"github.com/klytics/m365kit/cmd/pipeline"
 	"github.com/klytics/m365kit/cmd/pptx"
+	"github.com/klytics/m365kit/cmd/report"
 	"github.com/klytics/m365kit/cmd/send"
 	"github.com/klytics/m365kit/cmd/sharepoint"
 	"github.com/klytics/m365kit/cmd/teams"
+	cmdtemplate "github.com/klytics/m365kit/cmd/template"
 	"github.com/klytics/m365kit/cmd/update"
 	"github.com/klytics/m365kit/cmd/version"
+	cmdwatch "github.com/klytics/m365kit/cmd/watch"
 	"github.com/klytics/m365kit/cmd/word"
 )
 
@@ -70,12 +74,16 @@ Read, write, analyze, transform, and automate .docx .xlsx .pptx from your termin
 	rootCmd.AddCommand(batch.NewCommand())
 	rootCmd.AddCommand(cmdconfig.NewCommand())
 	rootCmd.AddCommand(diff.NewCommand())
+	rootCmd.AddCommand(doctor.NewCommand())
 	rootCmd.AddCommand(cmdffs.NewCommand())
 	rootCmd.AddCommand(send.NewCommand())
 	rootCmd.AddCommand(onedrive.NewCommand())
 	rootCmd.AddCommand(sharepoint.NewCommand())
 	rootCmd.AddCommand(teams.NewCommand())
+	rootCmd.AddCommand(cmdtemplate.NewCommand())
+	rootCmd.AddCommand(report.NewCommand())
 	rootCmd.AddCommand(update.NewCommand())
+	rootCmd.AddCommand(cmdwatch.NewCommand())
 	rootCmd.AddCommand(completion.NewCommand(rootCmd))
 	rootCmd.AddCommand(version.NewCommand())
 
