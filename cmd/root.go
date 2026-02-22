@@ -34,6 +34,13 @@ import (
 	"github.com/klytics/m365kit/cmd/word"
 )
 
+// Exit codes for consistent error reporting.
+const (
+	ExitOK          = 0 // success
+	ExitUserError   = 1 // bad flags, missing file, auth required
+	ExitSystemError = 2 // network failure, IO error, API error
+)
+
 var (
 	jsonOutput bool
 	verbose    bool

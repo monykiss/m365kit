@@ -1,45 +1,90 @@
 # Contributing to M365Kit
 
-Thank you for your interest in contributing to M365Kit! This guide will help you get started.
+Thank you for your interest in contributing! M365Kit is an open-source
+project built by [KLYTICS LLC](https://github.com/klytics) and the community.
 
-## Development Setup
+## Quick Start
 
-1. **Prerequisites:** Go 1.22+, Node.js 20+ (for TypeScript package)
-2. **Clone:** `git clone https://github.com/klytics/m365kit.git`
-3. **Build:** `make build`
-4. **Test:** `make test`
+    git clone https://github.com/monykiss/m365kit.git
+    cd m365kit
+    go mod download
+    make build
+    make test
 
-## Making Changes
+## Development Requirements
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Make your changes
-4. Run tests: `make test`
-5. Run linter: `make lint`
-6. Commit with a descriptive message
-7. Open a pull request
+- Go 1.22+
+- Node.js 22+ (for `kit pptx generate` TypeScript bridge only)
+- golangci-lint (for `make lint`)
 
-## Code Standards
+Optional for Microsoft 365 features:
+- Azure AD app registration with `KIT_AZURE_CLIENT_ID`
 
-- All public functions must have Go doc comments
-- No `panic()` calls — return errors up the stack
-- No hardcoded API keys, model names, or file paths
-- Error messages must tell the user what went wrong and how to fix it
-- Every command must support `--json` flag for machine-readable output
+## Project Structure
+
+    cmd/           CLI commands (one package per command)
+    internal/      Internal packages (not part of public API)
+      ai/          Provider interface + implementations
+      auth/        Microsoft OAuth device code flow
+      bridge/      Go-Node subprocess bridge
+      config/      Config management
+      email/       SMTP client
+      formats/     OOXML parsers (docx, xlsx, pptx) + convert
+      fs/          File system scanner, renamer, deduper
+      graph/       Microsoft Graph API clients
+      output/      Output formatting and JSON envelope
+      pipeline/    YAML workflow engine + actions registry
+      report/      Report generator
+      template/    Document template engine
+      update/      Update checker
+      watch/       File watcher (fsnotify)
+    benchmarks/    Go benchmark suite
+    packages/core/ TypeScript bridge (@m365kit/core)
+    docs/          Documentation
+    examples/      Example pipeline YAML files
+    testdata/      Test fixtures
+    tests/         Smoke / integration tests
+
+## Adding a New Command
+
+1. Create `cmd/mycommand/mycommand.go` with `NewCommand() *cobra.Command`
+2. Register in `cmd/root.go`
+3. Write tests in the corresponding `internal/` package
+4. Add `--json` flag support using `internal/output` helpers
+5. Add `--dry-run` for any command that writes files or makes network calls
+6. Update the Features table in README.md
+7. Add a smoke test in `tests/smoke_test.go`
 
 ## Testing
 
-- Use golden file tests for parser output
-- Test both success and error paths
-- Include integration tests for CLI commands
+    make test         # run all unit tests
+    make smoke        # build + run smoke tests
+    make benchmark    # run benchmarks
 
-## Reporting Bugs
+Every new command must have:
+- At least 3 unit tests
+- A smoke test that validates --help exits 0
 
-Use the GitHub issue template. Include:
-- What you expected to happen
-- What happened instead
-- Steps to reproduce
-- Your OS and Go version
+## Code Style
+
+- `golangci-lint run ./...` must be clean
+- `go vet ./...` must be clean
+- Error messages are lowercase, human-readable, with actionable fix instructions
+- Token/API key values are NEVER logged or included in error messages
+
+## Pull Request Process
+
+1. Fork the repo and create your branch: `git checkout -b feat/my-feature`
+2. Write tests for your changes
+3. Confirm: `make build && make test && go vet ./...`
+4. Open a PR with the checklist filled out (see `.github/pull_request_template.md`)
+5. A maintainer will review within 48 hours
+
+## Reporting Security Issues
+
+Do NOT open a public GitHub issue for security vulnerabilities.
+Email `security@klytics.com` with the subject "M365Kit Security".
+We will respond within 24 hours and coordinate a fix + disclosure.
 
 ## License
 

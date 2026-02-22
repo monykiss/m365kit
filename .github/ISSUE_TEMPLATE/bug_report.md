@@ -1,30 +1,27 @@
 ---
 name: Bug Report
-about: Report a bug in M365Kit
+about: Something isn't working
 title: '[BUG] '
 labels: bug
 assignees: ''
 ---
 
-**Describe the bug**
-A clear description of what the bug is.
+**M365Kit version:** (run `kit version`)
+**OS:** macOS / Linux / Windows
+**Go version:** (run `go version`)
 
-**To Reproduce**
-Steps to reproduce:
-1. Run `kit ...`
-2. See error
+**Command that failed:**
+```
+kit [command] [flags]
+```
 
-**Expected behavior**
-What you expected to happen.
+**Expected behavior:**
 
-**Actual behavior**
-What happened instead. Include the full error message.
+**Actual behavior:**
 
-**Environment:**
-- OS: [e.g., macOS 14.0, Ubuntu 22.04]
-- Go version: [e.g., 1.22]
-- Kit version: [e.g., 0.1.0]
-- AI provider: [e.g., anthropic]
+**Error output:**
+```
+[paste error here]
+```
 
-**Additional context**
-Add any other context about the problem here.
+**Additional context:**

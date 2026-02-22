@@ -1,19 +1,21 @@
 ---
 name: Feature Request
-about: Suggest a new feature for M365Kit
+about: Suggest a new command or flag
 title: '[FEATURE] '
 labels: enhancement
 assignees: ''
 ---
 
-**Is your feature request related to a problem?**
-A description of what the problem is.
+**Problem this would solve:**
 
-**Describe the solution you'd like**
-A description of what you want to happen. Include example CLI commands if possible.
+**Proposed command / flag:**
+```
+kit [proposed command]
+```
 
-**Describe alternatives you've considered**
-Any alternative solutions or features you've considered.
+**Example output:**
+```
+[what you'd want to see]
+```
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+**Alternatives considered:**

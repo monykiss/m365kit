@@ -1,39 +1,55 @@
-<p align="center">
-  <h1 align="center">M365Kit</h1>
-  <p align="center"><strong>The terminal is the new Office.</strong></p>
-  <p align="center">
-    AI-native CLI for Microsoft 365. Read, write, analyze, transform, and automate<br>
-    <code>.docx</code> <code>.xlsx</code> <code>.pptx</code> — locally and in the cloud via Microsoft Graph.
+<div align="center">
+  <h1>M365Kit</h1>
+  <p><strong>The complete Microsoft 365 CLI.</strong></p>
+  <p>
+    Process Office documents at scale. Automate SharePoint. Control OneDrive.<br>
+    Post to Teams. Read Outlook. Convert formats. All from your terminal.<br>
+    No Word required. No GUI. No clicking.
   </p>
-</p>
 
-<p align="center">
-  <a href="https://github.com/monykiss/m365kit/actions"><img src="https://github.com/monykiss/m365kit/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://www.npmjs.com/package/@m365kit/core"><img src="https://img.shields.io/npm/v/@m365kit/core" alt="npm"></a>
-  <a href="https://github.com/monykiss/m365kit/releases"><img src="https://img.shields.io/github/v/release/monykiss/m365kit" alt="Release"></a>
-  <a href="https://github.com/monykiss/m365kit/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
-  <a href="https://github.com/monykiss/m365kit"><img src="https://img.shields.io/github/stars/monykiss/m365kit?style=social" alt="Stars"></a>
-</p>
+  <p>
+    <a href="https://github.com/monykiss/m365kit/releases/latest">
+      <img src="https://img.shields.io/github/v/release/monykiss/m365kit?color=blue" alt="Latest Release">
+    </a>
+    <a href="https://github.com/monykiss/m365kit/actions/workflows/ci.yml">
+      <img src="https://github.com/monykiss/m365kit/actions/workflows/ci.yml/badge.svg" alt="CI">
+    </a>
+    <a href="https://pkg.go.dev/github.com/monykiss/m365kit">
+      <img src="https://pkg.go.dev/badge/github.com/monykiss/m365kit.svg" alt="Go Reference">
+    </a>
+    <img src="https://img.shields.io/badge/tests-238%2B-brightgreen" alt="Tests">
+    <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
+  </p>
+</div>
 
 ---
 
+## What teams use it for
+
 ```bash
-# Authenticate with Microsoft 365
-kit auth login
+# Replace company name in 342 contracts, in 6 minutes
+kit batch './contracts/*.docx' --action edit --find "OldName" --replace "NewName"
 
-# List your OneDrive files
-kit onedrive ls /Documents
+# Audit SharePoint for external sharing — 3 minutes vs. 2 hours in the web UI
+kit acl external --site https://company.sharepoint.com/sites/Legal --domain company.com
 
-# Download a contract, analyze it with AI, email the summary
-kit onedrive get Documents/contract.docx -o contract.docx
-kit word read contract.docx | kit ai summarize > summary.txt
-kit send --to counsel@company.com --subject "Contract Review" --body "$(cat summary.txt)"
+# Download every Office attachment from your unread emails
+kit outlook inbox --has-attachment --unread
+kit outlook download 1 --office-only -o ./downloads
 
-# Scan local files, find duplicates, organize
-kit fs scan ~/Documents -r --hash
-kit fs dedupe ~/Documents -r --dry-run
-kit fs organize ~/Documents -r --strategy by-type
+# Post a Word doc summary to Teams automatically
+kit word read contract.docx | kit ai summarize | \
+  kit teams post --team Legal --channel contracts --message "$(cat /dev/stdin)"
+
+# Convert 50 Word docs to Markdown for your wiki
+kit convert report.docx --to md
+
+# Watch a directory and process new files automatically
+kit watch start ./incoming -r --ext docx,xlsx --action log
 ```
+
+**In production:** [Processing 1,200 legal contracts in 47 minutes](docs/case-studies/legal-contracts.md) |
+76us per document read | 238+ tests | Pure Go | [Stability policy](docs/stability.md)
 
 ---
 
@@ -454,9 +470,10 @@ m365kit/
 │   ├── email/              # SMTP email client
 │   ├── bridge/             # Go→Node subprocess bridge
 │   └── pipeline/           # YAML workflow engine
+├── tests/                  # Smoke / integration tests
 ├── packages/core/          # TypeScript package (@m365kit/core)
 ├── examples/               # Pipeline YAML examples
-└── docs/                   # Documentation
+└── docs/                   # Documentation + stability policy + case studies
 ```
 
 ---

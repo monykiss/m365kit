@@ -4,7 +4,7 @@ GO_FILES := $(shell find . -name '*.go' -not -path './vendor/*')
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 LDFLAGS := -ldflags "-X github.com/klytics/m365kit/cmd/version.Version=$(VERSION)"
 
-.PHONY: build test lint install clean demo release fmt vet benchmark
+.PHONY: build test lint install clean demo release fmt vet benchmark smoke
 
 build:
 	@mkdir -p $(BUILD_DIR)
@@ -47,6 +47,9 @@ demo: build
 	$(BUILD_DIR)/$(BINARY_NAME) excel read testdata/sample.xlsx --json
 	@echo ""
 	@echo "=== Demo Complete ==="
+
+smoke: build
+	go test ./tests/... -v -count=1 -timeout 60s
 
 benchmark:
 	go test -bench=. -benchmem -count=3 ./benchmarks/

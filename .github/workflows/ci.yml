@@ -30,6 +30,8 @@ jobs:
         run: cd packages/core && npx jest --no-cache
       - name: Vet
         run: go vet ./...
+      - name: Smoke tests
+        run: make smoke
 
   lint:
     runs-on: ubuntu-latest
