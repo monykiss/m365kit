@@ -8,6 +8,8 @@ import (
 	"github.com/klytics/m365kit/internal/formats/docx"
 )
 
+var orderedListRe = regexp.MustCompile(`^\d+\.\s`)
+
 // MarkdownToDocx converts a Markdown string to a .docx file.
 func MarkdownToDocx(input, outputPath string) error {
 	doc := parseMarkdown(input)
@@ -88,7 +90,7 @@ func parseMarkdown(input string) *docx.Document {
 		}
 
 		// Ordered list
-		if matched, _ := regexp.MatchString(`^\d+\.\s`, trimmed); matched {
+		if orderedListRe.MatchString(trimmed) {
 			idx := strings.Index(trimmed, ". ")
 			text := trimmed[idx+2:]
 			runs := parseInlineFormatting(text)

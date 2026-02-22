@@ -293,9 +293,8 @@ func TestAuditLogEmpty(t *testing.T) {
 		t.Fatal("kit audit log should exit 0 even with no entries")
 	}
 	if !strings.Contains(stdout, "No audit log") && !strings.Contains(stdout, "0") {
-		// either "No audit log entries" or shows 0 entries is acceptable
+		t.Errorf("expected empty audit output, got: %s", stdout)
 	}
-	_ = stdout
 }
 
 // TestAuditStatusRuns validates audit status does not panic.
@@ -321,9 +320,8 @@ func TestAdminUsersRuns(t *testing.T) {
 		t.Fatal("kit admin users should exit 0")
 	}
 	if !strings.Contains(stdout, "No users") && !strings.Contains(stdout, "USER") {
-		// either "No users found" or a table header is acceptable
+		t.Errorf("expected users output or empty-state message, got: %s", stdout)
 	}
-	_ = stdout
 }
 
 // TestAdminTelemetryStatusRuns validates admin telemetry status.
