@@ -7,6 +7,27 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ---
 
+## [1.1.0] — 2026-02-22
+
+### Added
+- `kit org` — Organization-wide configuration management (show/validate/init/status)
+- `kit audit` — Command-level audit logging for compliance (log/clear/status)
+- `kit admin` — IT admin command group: usage stats, user listing, telemetry management
+- Org config file (`/etc/kit/org.yaml`) — centralized policy: locked settings, allowed commands, Azure/AI defaults
+- Audit log (JSONL) with automatic argument redaction (API keys, tokens, secrets)
+- Local telemetry store with privacy-first design (no user IDs, no file paths)
+- `PersistentPostRun` audit hook — every command is logged when audit is enabled
+- Org config validation (`kit org validate`)
+- Org config template generator (`kit org init`)
+- Enterprise deployment: org-config-template.yaml reference
+- 10 new smoke tests for enterprise commands
+
+### Changed
+- Root command wired with `PersistentPreRun`/`PersistentPostRun` for audit logging
+- Test count: 252 → 286+ (33 new internal tests + 10 new smoke tests)
+
+---
+
 ## [1.0.0] — 2026-02-22
 
 ### Added

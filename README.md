@@ -17,7 +17,7 @@
     <a href="https://pkg.go.dev/github.com/monykiss/m365kit">
       <img src="https://pkg.go.dev/badge/github.com/monykiss/m365kit.svg" alt="Go Reference">
     </a>
-    <img src="https://img.shields.io/badge/tests-238%2B-brightgreen" alt="Tests">
+    <img src="https://img.shields.io/badge/tests-286%2B-brightgreen" alt="Tests">
     <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
   </p>
 </div>
@@ -49,7 +49,7 @@ kit watch start ./incoming -r --ext docx,xlsx --action log
 ```
 
 **In production:** [Processing 1,200 legal contracts in 47 minutes](docs/case-studies/legal-contracts.md) |
-76us per document read | 238+ tests | Pure Go | [Stability policy](docs/stability.md)
+76us per document read | 286+ tests | Pure Go | [Stability policy](docs/stability.md)
 
 ---
 
@@ -257,6 +257,34 @@ kit convert data.xlsx --to json --sheet "Revenue"
 kit convert data.xlsx --to md
 ```
 
+### Enterprise: Org Config + Audit Log + Admin
+
+```bash
+# View org policy status (community mode if no org config)
+kit org status
+kit org show --json
+
+# Generate an org config template for your IT team
+kit org init --org-name "Acme Corp" --domain acme.com > /etc/kit/org.yaml
+
+# Validate an org config file before deploying
+kit org validate /etc/kit/org.yaml
+
+# View audit log (auto-populated when audit is enabled in org config)
+kit audit log --last 20
+kit audit log --since 2026-01-01 --user alice@acme.com
+kit audit status
+
+# IT admin: usage statistics
+kit admin stats --since 2026-01-01
+kit admin stats --by user --json
+kit admin users
+
+# Telemetry management
+kit admin telemetry status
+kit admin telemetry clear
+```
+
 ### File System Intelligence
 
 ```bash
@@ -324,6 +352,11 @@ kit fs manifest ~/Documents -r > manifest.json
 | | Batch processing | `kit batch` |
 | | Email with AI draft | `kit send` |
 | | File watcher | `kit watch start/stop/status` |
+| **Enterprise** | Org config management | `kit org show/init/validate` |
+| | Audit logging (JSONL) | `kit audit log/status/clear` |
+| | Usage statistics | `kit admin stats` |
+| | User activity | `kit admin users` |
+| | Telemetry management | `kit admin telemetry` |
 | **Setup** | Config wizard | `kit config init` |
 | | Shell completions | `kit completion` |
 | | Health check | `kit doctor` |
@@ -454,6 +487,9 @@ m365kit/
 │   ├── outlook/            # kit outlook inbox/read/download/reply
 │   ├── acl/                # kit acl audit/external/broken/users
 │   ├── convert/            # kit convert (docx/xlsx/md/html/csv)
+│   ├── org/                # kit org show/init/validate/status
+│   ├── audit/              # kit audit log/clear/status
+│   ├── admin/              # kit admin stats/users/telemetry
 │   ├── pipeline/           # kit pipeline run
 │   └── batch/              # kit batch
 ├── benchmarks/             # Go benchmarks (make benchmark)
@@ -469,7 +505,10 @@ m365kit/
 │   ├── ai/                 # Provider interface + implementations
 │   ├── email/              # SMTP email client
 │   ├── bridge/             # Go→Node subprocess bridge
-│   └── pipeline/           # YAML workflow engine
+│   ├── pipeline/           # YAML workflow engine
+│   ├── admin/              # IT admin stats aggregation
+│   ├── audit/              # JSONL audit logger + redaction
+│   └── telemetry/          # Privacy-first local telemetry
 ├── tests/                  # Smoke / integration tests
 ├── packages/core/          # TypeScript package (@m365kit/core)
 ├── examples/               # Pipeline YAML examples

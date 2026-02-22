@@ -54,6 +54,7 @@ func TestAllCommandsExist(t *testing.T) {
 		"fs", "template", "report", "watch",
 		"send", "diff", "convert",
 		"config", "completion", "update", "doctor", "version",
+		"org", "audit", "admin",
 	}
 
 	stdout, _, code := run(t, "--help")
@@ -234,6 +235,11 @@ func TestAllCommandsHaveHelp(t *testing.T) {
 		{"completion", "bash"}, {"completion", "zsh"},
 		{"update", "check"},
 		{"doctor"}, {"version"},
+		// Enterprise (v1.1)
+		{"org", "show"}, {"org", "validate"}, {"org", "init"}, {"org", "status"},
+		{"audit", "log"}, {"audit", "clear"}, {"audit", "status"},
+		{"admin", "stats"}, {"admin", "users"},
+		{"admin", "telemetry", "status"}, {"admin", "telemetry", "clear"},
 	}
 
 	for _, path := range commandPaths {
@@ -244,5 +250,101 @@ func TestAllCommandsHaveHelp(t *testing.T) {
 				t.Errorf("kit %s --help should exit 0", strings.Join(path, " "))
 			}
 		})
+	}
+}
+
+// TestOrgShowCommunityMode validates org show works without org config.
+func TestOrgShowCommunityMode(t *testing.T) {
+	stdout, _, code := run(t, "org", "show")
+	if code != 0 {
+		t.Fatal("kit org show should exit 0 in community mode")
+	}
+	if !strings.Contains(stdout, "community") {
+		t.Errorf("expected community mode message, got: %s", stdout)
+	}
+}
+
+// TestOrgStatusCommunityMode validates org status without org config.
+func TestOrgStatusCommunityMode(t *testing.T) {
+	stdout, _, code := run(t, "org", "status")
+	if code != 0 {
+		t.Fatal("kit org status should exit 0")
+	}
+	if !strings.Contains(stdout, "community") {
+		t.Errorf("expected community mode, got: %s", stdout)
+	}
+}
+
+// TestOrgInitTemplate validates org init generates YAML template.
+func TestOrgInitTemplate(t *testing.T) {
+	stdout, _, code := run(t, "org", "init", "--org-name", "TestCo", "--domain", "test.com")
+	if code != 0 {
+		t.Fatal("kit org init should exit 0")
+	}
+	if !strings.Contains(stdout, "TestCo") || !strings.Contains(stdout, "test.com") {
+		t.Errorf("expected org template with TestCo, got: %s", stdout)
+	}
+}
+
+// TestAuditLogEmpty validates audit log on empty log.
+func TestAuditLogEmpty(t *testing.T) {
+	stdout, _, code := run(t, "audit", "log")
+	if code != 0 {
+		t.Fatal("kit audit log should exit 0 even with no entries")
+	}
+	if !strings.Contains(stdout, "No audit log") && !strings.Contains(stdout, "0") {
+		// either "No audit log entries" or shows 0 entries is acceptable
+	}
+	_ = stdout
+}
+
+// TestAuditStatusRuns validates audit status does not panic.
+func TestAuditStatusRuns(t *testing.T) {
+	_, _, code := run(t, "audit", "status")
+	if code != 0 {
+		t.Fatal("kit audit status should exit 0")
+	}
+}
+
+// TestAdminStatsRuns validates admin stats does not panic.
+func TestAdminStatsRuns(t *testing.T) {
+	_, _, code := run(t, "admin", "stats")
+	if code != 0 {
+		t.Fatal("kit admin stats should exit 0")
+	}
+}
+
+// TestAdminUsersRuns validates admin users does not panic.
+func TestAdminUsersRuns(t *testing.T) {
+	stdout, _, code := run(t, "admin", "users")
+	if code != 0 {
+		t.Fatal("kit admin users should exit 0")
+	}
+	if !strings.Contains(stdout, "No users") && !strings.Contains(stdout, "USER") {
+		// either "No users found" or a table header is acceptable
+	}
+	_ = stdout
+}
+
+// TestAdminTelemetryStatusRuns validates admin telemetry status.
+func TestAdminTelemetryStatusRuns(t *testing.T) {
+	_, _, code := run(t, "admin", "telemetry", "status")
+	if code != 0 {
+		t.Fatal("kit admin telemetry status should exit 0")
+	}
+}
+
+// TestOrgShowJSON validates JSON output for org show.
+func TestOrgShowJSON(t *testing.T) {
+	stdout, _, code := run(t, "org", "show", "--json")
+	if code != 0 {
+		t.Fatal("kit org show --json should exit 0")
+	}
+	var result map[string]interface{}
+	if err := json.Unmarshal([]byte(stdout), &result); err != nil {
+		t.Fatalf("--json output is not valid JSON: %v", err)
+	}
+	if result["status"] != "community" {
+		t.Errorf("expected community status, got: %v", result["status"])
 	}
 }

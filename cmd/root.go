@@ -2,14 +2,22 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
+	auditpkg "github.com/klytics/m365kit/internal/audit"
+	"github.com/klytics/m365kit/internal/config"
+
 	"github.com/klytics/m365kit/cmd/acl"
+	cmdadmin "github.com/klytics/m365kit/cmd/admin"
 	"github.com/klytics/m365kit/cmd/ai"
+	cmdaudit "github.com/klytics/m365kit/cmd/audit"
 	cmdauth "github.com/klytics/m365kit/cmd/auth"
 	"github.com/klytics/m365kit/cmd/batch"
 	"github.com/klytics/m365kit/cmd/completion"
@@ -20,6 +28,7 @@ import (
 	"github.com/klytics/m365kit/cmd/excel"
 	cmdffs "github.com/klytics/m365kit/cmd/fs"
 	"github.com/klytics/m365kit/cmd/onedrive"
+	cmdorg "github.com/klytics/m365kit/cmd/org"
 	"github.com/klytics/m365kit/cmd/outlook"
 	"github.com/klytics/m365kit/cmd/pipeline"
 	"github.com/klytics/m365kit/cmd/pptx"
@@ -100,7 +109,49 @@ Read, write, analyze, transform, and automate .docx .xlsx .pptx from your termin
 	rootCmd.AddCommand(completion.NewCommand(rootCmd))
 	rootCmd.AddCommand(version.NewCommand())
 
+	// Enterprise commands (v1.1)
+	rootCmd.AddCommand(cmdorg.NewCommand())
+	rootCmd.AddCommand(cmdaudit.NewCommand())
+	rootCmd.AddCommand(cmdadmin.NewCommand())
+
+	// Audit logging: wrap PersistentPreRun to capture start time
+	origPreRun := rootCmd.PersistentPreRun
+	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
+		if origPreRun != nil {
+			origPreRun(cmd, args)
+		}
+		cmd.SetContext(context.WithValue(cmd.Context(), auditStartKey, time.Now()))
+	}
+
+	rootCmd.PersistentPostRun = func(cmd *cobra.Command, args []string) {
+		orgCfg, _ := config.LoadOrgConfig()
+		if orgCfg == nil || !orgCfg.Audit.Enabled {
+			return
+		}
+		logger := auditpkg.NewLogger(orgCfg.AuditLogPath(), orgCfg.Audit.Endpoint, orgCfg.Audit.Level, true)
+		start, _ := cmd.Context().Value(auditStartKey).(time.Time)
+		entry := auditpkg.Entry{
+			Timestamp:  start,
+			Command:    cmd.CommandPath(),
+			Args:       auditpkg.Redact(args),
+			DurationMs: time.Since(start).Milliseconds(),
+			UserID:     os.Getenv("KIT_USER"),
+			Machine:    hostname(),
+		}
+		_ = logger.Log(cmd.Context(), entry)
+	}
+
 	return rootCmd
+}
+
+type contextKey string
+
+const auditStartKey contextKey = "audit_start"
+
+func hostname() string {
+	h, _ := os.Hostname()
+	parts := strings.SplitN(h, ".", 2)
+	return parts[0]
 }
 
 // Execute runs the root command and handles any returned errors.

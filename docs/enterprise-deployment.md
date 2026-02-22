@@ -73,6 +73,85 @@ azure:
 EOF
 ```
 
+## Organization-Wide Configuration (v1.1+)
+
+Deploy an org config to control settings, lock values, and enable audit logging for all users.
+
+**Path:** `/etc/kit/org.yaml` (macOS/Linux) or `C:\ProgramData\M365Kit\org.yaml` (Windows)
+
+```bash
+# Generate a template
+kit org init --org-name "Acme Corp" --domain acme.com > /etc/kit/org.yaml
+
+# Validate before deploying
+kit org validate /etc/kit/org.yaml
+
+# Users can check their policy status
+kit org status
+```
+
+**Example org config:**
+
+```yaml
+org_name: "Acme Corp"
+org_domain: "acme.com"
+
+azure:
+  client_id: "your-azure-app-client-id"
+  tenant_id: "your-tenant-id"
+
+ai:
+  provider: anthropic
+  model: claude-sonnet-4-20250514
+
+locked:
+  azure_client_id: true   # Users cannot override
+  ai_provider: true       # Users cannot switch providers
+
+audit:
+  enabled: true
+  file_path: "~/.kit/audit.log"
+  level: command
+
+telemetry:
+  enabled: false
+```
+
+**Deployment methods:**
+- **Windows GPO:** Push to `C:\ProgramData\M365Kit\org.yaml` via Group Policy Preferences (File)
+- **macOS MDM / Jamf:** Deploy to `/etc/kit/org.yaml` via configuration profile or script
+- **Linux:** Deploy to `/etc/kit/org.yaml` via Ansible, Chef, or Puppet
+
+### Audit Logging
+
+When `audit.enabled: true` in org config, every command is logged to a JSONL file:
+
+```bash
+# View recent audit entries
+kit audit log --last 20
+
+# Filter by user or command
+kit audit log --user alice@acme.com --since 2026-01-01
+
+# Check log size
+kit audit status
+
+# IT admin: aggregated usage statistics
+kit admin stats --since 2026-01-01
+kit admin users
+```
+
+Sensitive arguments (API keys, tokens, passwords) are automatically redacted in audit logs.
+
+### Telemetry
+
+Local telemetry stores anonymous, aggregate command usage data (no user IDs, no file paths).
+
+```bash
+kit admin telemetry status   # Check store size
+kit admin telemetry clear    # Delete local telemetry
+```
+
 ## Pre-Configuration Template
 
 Create this file at `~/.kit/config.yaml` before first use:

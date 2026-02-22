@@ -1,0 +1,43 @@
+# M365Kit Organization Configuration Template
+# Deploy to: /etc/kit/org.yaml (macOS/Linux) or C:\ProgramData\M365Kit\org.yaml (Windows)
+# Permissions: readable by all users, writable only by root/Administrators
+#
+# Generate with: kit org init --org-name "Your Org" --domain example.com
+# Validate with: kit org validate /etc/kit/org.yaml
+
+org_name: "My Organization"
+org_domain: "example.com"
+org_id: ""
+
+# Azure AD app registration for Microsoft 365 access
+azure:
+  client_id: ""
+  tenant_id: ""
+
+# Default AI provider and model
+ai:
+  provider: anthropic
+  model: claude-sonnet-4-20250514
+
+# Restrict which commands users can run (empty = all allowed)
+# allowed_commands: []
+
+# Lock settings so users cannot override them
+locked:
+  azure_client_id: false
+  ai_provider: false
+  commands: false
+
+# Audit logging — log every command to a JSONL file
+# Sensitive args (API keys, tokens) are automatically redacted
+audit:
+  enabled: true
+  file_path: "~/.kit/audit.log"
+  endpoint: ""        # Optional: HTTP endpoint for centralized logging
+  level: command      # "command" or "verbose"
+
+# Local telemetry — anonymous, aggregate usage data
+# No user IDs, no file paths, no secrets
+telemetry:
+  enabled: false
+  endpoint: ""        # Optional: HTTP endpoint for telemetry shipping
