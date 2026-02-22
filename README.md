@@ -44,14 +44,19 @@ kit fs organize ~/Documents -r --strategy by-type
 brew install monykiss/tap/m365kit
 ```
 
+### Windows
+
+**PowerShell (one-liner, no admin required):**
+```powershell
+iwr https://raw.githubusercontent.com/monykiss/m365kit/main/packaging/windows/install.ps1 | iex
+```
+
+**Windows Installer (.exe):**
+Download from [GitHub Releases](https://github.com/monykiss/m365kit/releases/latest)
+
 ### Go
 ```bash
 go install github.com/monykiss/m365kit@latest
-```
-
-### Docker *(coming soon)*
-```bash
-docker pull monykiss/m365kit
 ```
 
 ### TypeScript
@@ -109,6 +114,12 @@ kit sharepoint libs <site-id>            # List document libraries
 kit sharepoint ls <site-id> /Reports     # Browse library files
 kit sharepoint get <site-id> report.docx # Download from library
 kit sharepoint audit <site-id>           # Activity log
+
+# Teams integration
+kit teams list                           # Your teams
+kit teams channels --team Engineering    # Channels
+kit teams post --team Engineering --channel general --message "Report ready"
+kit teams dm --to alice@company.com --message "Contract is ready"
 ```
 
 ### File System Intelligence
@@ -156,6 +167,7 @@ kit fs manifest ~/Documents -r > manifest.json
 | **Microsoft 365** | OAuth device code flow | `kit auth login` |
 | | OneDrive (ls/get/put/search/share) | `kit onedrive` |
 | | SharePoint (sites/libs/audit) | `kit sharepoint` |
+| | Teams (list/post/share/dm) | `kit teams` |
 | **File System** | Scan documents | `kit fs scan` |
 | | Rename (kebab/snake/date) | `kit fs rename` |
 | | Deduplicate | `kit fs dedupe` |
@@ -165,6 +177,9 @@ kit fs manifest ~/Documents -r > manifest.json
 | **Automation** | Pipeline workflows | `kit pipeline run` |
 | | Batch processing | `kit batch` |
 | | Email with AI draft | `kit send` |
+| **Setup** | Config wizard | `kit config init` |
+| | Shell completions | `kit completion` |
+| | Update checker | `kit update check` |
 | **Output** | JSON (all commands) | `--json` flag |
 | | Markdown | `--markdown` flag |
 | | Stdin/stdout piping | All commands |
@@ -276,13 +291,18 @@ m365kit/
 │   ├── onedrive/           # kit onedrive ls/get/put/recent/search/share
 │   ├── sharepoint/         # kit sharepoint sites/libs/ls/get/put/audit
 │   ├── fs/                 # kit fs scan/rename/dedupe/stale/organize/manifest
+│   ├── teams/              # kit teams list/post/share/dm
+│   ├── config/             # kit config init/show/set/validate
+│   ├── completion/         # kit completion bash/zsh/fish/powershell
+│   ├── update/             # kit update check/install
 │   ├── diff/               # kit diff
 │   ├── send/               # kit send
 │   ├── pipeline/           # kit pipeline run
 │   └── batch/              # kit batch
 ├── internal/
 │   ├── auth/               # Microsoft OAuth device code flow
-│   ├── graph/              # OneDrive + SharePoint Graph API clients
+│   ├── graph/              # OneDrive + SharePoint + Teams Graph API clients
+│   ├── update/             # Update checker
 │   ├── fs/                 # File system scanner, renamer, deduper, organizer
 │   ├── formats/            # OOXML parsers (docx, xlsx, pptx)
 │   ├── ai/                 # Provider interface + implementations

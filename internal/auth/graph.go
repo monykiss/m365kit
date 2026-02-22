@@ -17,7 +17,7 @@ import (
 const (
 	graphBaseURL   = "https://graph.microsoft.com/v1.0"
 	authorityBase  = "https://login.microsoftonline.com/common/oauth2/v2.0"
-	defaultScopes  = "Files.ReadWrite Sites.ReadWrite.All User.Read offline_access"
+	defaultScopes  = "Files.ReadWrite Sites.ReadWrite.All User.Read Chat.ReadWrite ChannelMessage.Send Team.ReadBasic.All offline_access"
 	tokenFileName  = "token.json"
 	refreshWindow  = 5 * time.Minute
 	pollInterval   = 5 * time.Second
