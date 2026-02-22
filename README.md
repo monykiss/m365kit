@@ -80,6 +80,18 @@ make build
 
 ---
 
+## Why M365Kit?
+
+| Approach | Read .docx | Write .docx | AI | Cloud | Pipeline | Speed |
+|----------|-----------|-------------|-----|-------|----------|-------|
+| **M365Kit** | `kit word read` | `kit word write` | Built-in | Graph API | YAML | ~76 us/doc |
+| python-docx | 10+ lines | 20+ lines | DIY | No | No | ~5 ms |
+| LibreOffice CLI | `soffice --convert` | `soffice --convert` | No | No | No | ~1 s |
+| Microsoft Graph SDK | 50+ lines | 80+ lines | No | Yes | No | Network |
+| Google Apps Script | N/A | N/A | N/A | Google only | Triggers | Slow |
+
+---
+
 ## Quick Start
 
 ### Local Documents
@@ -172,6 +184,63 @@ docker compose run kit word read /data/report.docx
 docker compose up -d watch
 ```
 
+### Outlook Email
+
+```bash
+# List inbox (with filters)
+kit outlook inbox --unread --limit 10
+kit outlook inbox --from alice@company.com --has-attachment
+
+# Read a specific email by index
+kit outlook read 1
+
+# Download attachments (Office files only)
+kit outlook download 3 --office-only -o ./downloads
+
+# List attachments on a message
+kit outlook attachments 3
+
+# Mark as read / reply
+kit outlook mark-read 1
+kit outlook reply 1 --body "Thanks for the update!"
+```
+
+### SharePoint Permissions Audit
+
+```bash
+# Full ACL audit of a SharePoint site
+kit acl audit --site <site-id> --domain company.com
+
+# Find files shared with external users
+kit acl external --site <site-id> --domain company.com
+
+# Find files with broken permission inheritance
+kit acl broken --site <site-id>
+
+# List all users with site access
+kit acl users --site <site-id>
+
+# Export audit report to JSON
+kit acl audit --site <site-id> -o audit_report.json
+```
+
+### Format Conversion
+
+```bash
+# Word to Markdown / HTML / plain text
+kit convert report.docx --to md
+kit convert report.docx --to html -o report.html
+kit convert report.docx --to txt
+
+# Markdown to Word
+kit convert notes.md --to docx
+
+# Excel to CSV / JSON / Markdown
+kit convert data.xlsx --to csv
+kit convert data.xlsx --to json --sheet "Revenue"
+kit convert data.xlsx --to md
+```
+
 ### File System Intelligence
 
 ```bash
@@ -214,10 +283,16 @@ kit fs manifest ~/Documents -r > manifest.json
 | | Entity extraction | `kit ai extract` |
 | | Q&A | `kit ai ask` |
 | | Anthropic / OpenAI / Ollama | `--provider` flag |
+| **Conversion** | Word to Markdown | `kit convert report.docx --to md` |
+| | Word to HTML | `kit convert report.docx --to html` |
+| | Markdown to Word | `kit convert notes.md --to docx` |
+| | Excel to CSV/JSON/Markdown | `kit convert data.xlsx --to csv` |
 | **Microsoft 365** | OAuth device code flow | `kit auth login` |
 | | OneDrive (ls/get/put/search/share) | `kit onedrive` |
 | | SharePoint (sites/libs/audit) | `kit sharepoint` |
 | | Teams (list/post/share/dm) | `kit teams` |
+| | Outlook (inbox/read/download/reply) | `kit outlook` |
+| | ACL audit (external/broken/links) | `kit acl audit` |
 | **File System** | Scan documents | `kit fs scan` |
 | | Rename (kebab/snake/date) | `kit fs rename` |
 | | Deduplicate | `kit fs dedupe` |
@@ -360,17 +435,21 @@ m365kit/
 │   ├── update/             # kit update check/install
 │   ├── diff/               # kit diff
 │   ├── send/               # kit send
+│   ├── outlook/            # kit outlook inbox/read/download/reply
+│   ├── acl/                # kit acl audit/external/broken/users
+│   ├── convert/            # kit convert (docx/xlsx/md/html/csv)
 │   ├── pipeline/           # kit pipeline run
 │   └── batch/              # kit batch
+├── benchmarks/             # Go benchmarks (make benchmark)
 ├── internal/
 │   ├── auth/               # Microsoft OAuth device code flow
-│   ├── graph/              # OneDrive + SharePoint + Teams Graph API clients
+│   ├── graph/              # OneDrive + SharePoint + Teams + Outlook + ACL Graph API
 │   ├── template/           # Template engine with run-splitting fix
 │   ├── report/             # Report generator (CSV/JSON data + templates)
 │   ├── watch/              # File system watcher with fsnotify
 │   ├── update/             # Update checker
 │   ├── fs/                 # File system scanner, renamer, deduper, organizer
-│   ├── formats/            # OOXML parsers (docx, xlsx, pptx)
+│   ├── formats/            # OOXML parsers (docx, xlsx, pptx) + convert
 │   ├── ai/                 # Provider interface + implementations
 │   ├── email/              # SMTP email client
 │   ├── bridge/             # Go→Node subprocess bridge
@@ -378,6 +457,32 @@ m365kit/
 ├── packages/core/          # TypeScript package (@m365kit/core)
 ├── examples/               # Pipeline YAML examples
 └── docs/                   # Documentation
+```
+
+---
+
+## Performance
+
+All benchmarks run on Apple M2, Go 1.23, pure Go (no CGo, no subprocess calls).
+
+| Operation | Time | Allocations |
+|-----------|------|-------------|
+| Read .docx | ~76 us | 773 allocs |
+| Write .docx (6 nodes) | ~93 us | 76 allocs |
+| Write .docx (100 paragraphs) | ~142 us | 76 allocs |
+| Read + Write round-trip | ~194 us | 859 allocs |
+| Plain text extraction | ~0.6 us | 10 allocs |
+| Markdown extraction | ~0.6 us | 10 allocs |
+| Read .xlsx | ~741 us | 6,410 allocs |
+| Write .xlsx | ~974 us | 4,406 allocs |
+| Convert .docx to .md | ~76 us | 783 allocs |
+| Convert .docx to .html | ~78 us | 779 allocs |
+| Convert .xlsx to .csv | ~784 us | 6,514 allocs |
+| Convert .md to .docx | ~205 us | 1,048 allocs |
+
+Run benchmarks yourself:
+```bash
+make benchmark
 ```
 
 ---

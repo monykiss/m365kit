@@ -6,7 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
+	"github.com/klytics/m365kit/internal/formats/convert"
 	"github.com/klytics/m365kit/internal/formats/docx"
 	"github.com/klytics/m365kit/internal/formats/xlsx"
 	"github.com/klytics/m365kit/internal/pipeline"
@@ -21,6 +24,10 @@ func RegisterAll(exec *pipeline.Executor) {
 	exec.RegisterAction("ai.analyze", AIAnalyzeAction)
 	exec.RegisterAction("ai.extract", AIExtractAction)
 	exec.RegisterAction("email.send", EmailSendAction)
+	exec.RegisterAction("convert", ConvertAction)
+	exec.RegisterAction("outlook.inbox", OutlookInboxAction)
+	exec.RegisterAction("outlook.download", OutlookDownloadAction)
+	exec.RegisterAction("acl.audit", ACLAuditAction)
 }
 
 // WordReadAction reads a Word document and returns its text content.
@@ -116,6 +123,56 @@ func ExcelReadAction(ctx context.Context, step pipeline.Step, input string) (str
 // EmailSendAction is a placeholder for email sending functionality.
 func EmailSendAction(ctx context.Context, step pipeline.Step, input string) (string, error) {
 	return "", fmt.Errorf("email.send is not yet implemented — this action is planned for a future release")
+}
+
+// ConvertAction converts a file from one format to another.
+func ConvertAction(ctx context.Context, step pipeline.Step, input string) (string, error) {
+	inputPath := input
+	if inputPath == "" {
+		return "", fmt.Errorf("convert requires an input file path")
+	}
+
+	toFmt := ""
+	if t, ok := step.Options["to"]; ok {
+		toFmt = t
+	}
+	if toFmt == "" {
+		return "", fmt.Errorf("convert requires options.to (target format)")
+	}
+
+	outputPath := ""
+	if o, ok := step.Options["output"]; ok {
+		outputPath = o
+	}
+	if outDir, ok := step.Options["out_dir"]; ok && outputPath == "" {
+		base := strings.TrimSuffix(filepath.Base(inputPath), filepath.Ext(inputPath))
+		outputPath = filepath.Join(outDir, base+"."+toFmt)
+	}
+
+	result, err := convert.Convert(inputPath, outputPath, toFmt)
+	if err != nil {
+		return "", err
+	}
+
+	if outputPath != "" {
+		return outputPath, nil
+	}
+	return result, nil
+}
+
+// OutlookInboxAction lists inbox messages (pipeline placeholder — requires auth context).
+func OutlookInboxAction(ctx context.Context, step pipeline.Step, input string) (string, error) {
+	return "", fmt.Errorf("outlook.inbox requires authenticated Graph client — use 'kit outlook inbox' directly or ensure auth is configured")
+}
+
+// OutlookDownloadAction downloads email attachments (pipeline placeholder — requires auth context).
+func OutlookDownloadAction(ctx context.Context, step pipeline.Step, input string) (string, error) {
+	return "", fmt.Errorf("outlook.download requires authenticated Graph client — use 'kit outlook download' directly or ensure auth is configured")
+}
+
+// ACLAuditAction audits SharePoint permissions (pipeline placeholder — requires auth context).
+func ACLAuditAction(ctx context.Context, step pipeline.Step, input string) (string, error) {
+	return "", fmt.Errorf("acl.audit requires authenticated Graph client — use 'kit acl audit' directly or ensure auth is configured")
 }
 
 func writeFileBytes(path string, data []byte) error {

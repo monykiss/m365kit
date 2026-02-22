@@ -1,0 +1,29 @@
+name: Inbox Attachment Processor
+version: "1.0"
+steps:
+  - id: list-inbox
+    action: outlook.inbox
+    options:
+      has_attachment: "true"
+      unread: "true"
+      limit: "10"
+
+  - id: download-attachments
+    action: outlook.download
+    input: "${{ steps.list-inbox.output }}"
+    options:
+      office_only: "true"
+      output: "./downloads"
+
+  - id: convert-to-md
+    action: convert
+    input: "${{ steps.download-attachments.output }}"
+    options:
+      to: "md"
+      out_dir: "./converted"
+
+  - id: summarize
+    action: ai.summarize
+    input: "${{ steps.convert-to-md.output }}"
+    options:
+      format: "bullet"
