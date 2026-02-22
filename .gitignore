@@ -53,3 +53,4 @@ testdata/*.tmp
 
 # Claude Code
 .claude/
+.cache/

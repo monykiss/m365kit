@@ -4,6 +4,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -13,6 +14,7 @@ import (
 
 	auditpkg "github.com/klytics/m365kit/internal/audit"
 	"github.com/klytics/m365kit/internal/config"
+	shellpkg "github.com/klytics/m365kit/internal/shell"
 
 	"github.com/klytics/m365kit/cmd/acl"
 	cmdadmin "github.com/klytics/m365kit/cmd/admin"
@@ -31,9 +33,11 @@ import (
 	cmdorg "github.com/klytics/m365kit/cmd/org"
 	"github.com/klytics/m365kit/cmd/outlook"
 	"github.com/klytics/m365kit/cmd/pipeline"
+	cmdplugin "github.com/klytics/m365kit/cmd/plugin"
 	"github.com/klytics/m365kit/cmd/pptx"
 	"github.com/klytics/m365kit/cmd/report"
 	"github.com/klytics/m365kit/cmd/send"
+	cmdshell "github.com/klytics/m365kit/cmd/shell"
 	"github.com/klytics/m365kit/cmd/sharepoint"
 	"github.com/klytics/m365kit/cmd/teams"
 	cmdtemplate "github.com/klytics/m365kit/cmd/template"
@@ -56,6 +60,7 @@ var (
 	modelName  string
 	provider   string
 	noColor    bool
+	noProgress bool
 )
 
 // NewRootCommand creates and returns the root cobra command with all subcommands registered.
@@ -82,6 +87,7 @@ Read, write, analyze, transform, and automate .docx .xlsx .pptx from your termin
 	rootCmd.PersistentFlags().StringVar(&modelName, "model", defaultModel(), "AI model name override")
 	rootCmd.PersistentFlags().StringVar(&provider, "provider", defaultProvider(), "AI provider: anthropic | openai | ollama")
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable ANSI color output")
+	rootCmd.PersistentFlags().BoolVar(&noProgress, "no-progress", false, "Disable progress bars")
 
 	// Register subcommands
 	rootCmd.AddCommand(word.NewCommand())
@@ -114,11 +120,27 @@ Read, write, analyze, transform, and automate .docx .xlsx .pptx from your termin
 	rootCmd.AddCommand(cmdaudit.NewCommand())
 	rootCmd.AddCommand(cmdadmin.NewCommand())
 
+	// Platform commands (v1.2)
+	rootCmd.AddCommand(cmdplugin.NewCommand())
+	rootCmd.AddCommand(cmdshell.NewCommand())
+
+	// Wire shell runner: the shell REPL creates a fresh root command per eval
+	shellpkg.DefaultRunner = func(ctx context.Context, args []string, stdout, stderr io.Writer) error {
+		inner := NewRootCommand()
+		inner.SetOut(stdout)
+		inner.SetErr(stderr)
+		inner.SetArgs(args)
+		return inner.ExecuteContext(ctx)
+	}
+
 	// Audit logging: wrap PersistentPreRun to capture start time
 	origPreRun := rootCmd.PersistentPreRun
 	rootCmd.PersistentPreRun = func(cmd *cobra.Command, args []string) {
 		if origPreRun != nil {
 			origPreRun(cmd, args)
+		}
+		if noProgress {
+			os.Setenv("KIT_NO_PROGRESS", "1")
 		}
 		cmd.SetContext(context.WithValue(cmd.Context(), auditStartKey, time.Now()))
 	}

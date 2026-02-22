@@ -17,7 +17,7 @@
     <a href="https://pkg.go.dev/github.com/monykiss/m365kit">
       <img src="https://pkg.go.dev/badge/github.com/monykiss/m365kit.svg" alt="Go Reference">
     </a>
-    <img src="https://img.shields.io/badge/tests-286%2B-brightgreen" alt="Tests">
+    <img src="https://img.shields.io/badge/tests-348%2B-brightgreen" alt="Tests">
     <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
   </p>
 </div>
@@ -46,10 +46,17 @@ kit convert report.docx --to md
 
 # Watch a directory and process new files automatically
 kit watch start ./incoming -r --ext docx,xlsx --action log
+
+# Install a custom company workflow as a plugin
+kit plugin install --local ./kit-contract-review/
+kit contract-review ./contracts/*.docx
+
+# Interactive shell — persistent auth, tab completion
+kit shell --sharepoint "https://co.sharepoint.com/sites/Legal"
 ```
 
 **In production:** [Processing 1,200 legal contracts in 47 minutes](docs/case-studies/legal-contracts.md) |
-76us per document read | 286+ tests | Pure Go | [Stability policy](docs/stability.md)
+76us per document read | 348+ tests | Pure Go | [Stability policy](docs/stability.md) | [Plugin system](docs/plugins.md)
 
 ---
 
@@ -285,6 +292,51 @@ kit admin telemetry status
 kit admin telemetry clear
 ```
 
+### Plugin System
+
+```bash
+# Create a new shell plugin
+kit plugin new --name nda-review --type shell
+# Edit nda-review/kit-nda-review with your logic
+
+# Install a local plugin
+kit plugin install --local ./nda-review/
+
+# Run it directly
+kit nda-review contract.docx
+
+# List, show, remove
+kit plugin list
+kit plugin show nda-review
+kit plugin remove nda-review
+
+# Create a Go plugin
+kit plugin new --name data-sync --type go
+```
+
+See [docs/plugins.md](docs/plugins.md) for the full plugin authoring guide.
+
+### Interactive Shell
+
+```bash
+# Start interactive shell
+kit shell
+
+# Start with SharePoint context
+kit shell --sharepoint "https://company.sharepoint.com/sites/Legal"
+
+# Non-interactive mode for scripting
+kit shell --eval "word read contract.docx"
+kit shell --eval "version"
+```
+
+**Session features:**
+- Tab completion for all commands and flags
+- Command history persisted in `~/.kit/shell_history`
+- `set site <url>` / `set team <name>` for session defaults
+- `history` to view command history
+- `help` for available commands
+
 ### File System Intelligence
 
 ```bash
@@ -357,6 +409,10 @@ kit fs manifest ~/Documents -r > manifest.json
 | | Usage statistics | `kit admin stats` |
 | | User activity | `kit admin users` |
 | | Telemetry management | `kit admin telemetry` |
+| **Platform** | Plugin system | `kit plugin install/list/run` |
+| | Plugin scaffolding | `kit plugin new --type shell\|go` |
+| | Interactive shell | `kit shell` |
+| | Live progress bars | Automatic on TTY |
 | **Setup** | Config wizard | `kit config init` |
 | | Shell completions | `kit completion` |
 | | Health check | `kit doctor` |
@@ -490,6 +546,8 @@ m365kit/
 │   ├── org/                # kit org show/init/validate/status
 │   ├── audit/              # kit audit log/clear/status
 │   ├── admin/              # kit admin stats/users/telemetry
+│   ├── plugin/             # kit plugin install/list/run/new
+│   ├── shell/              # kit shell (interactive REPL)
 │   ├── pipeline/           # kit pipeline run
 │   └── batch/              # kit batch
 ├── benchmarks/             # Go benchmarks (make benchmark)
@@ -508,7 +566,10 @@ m365kit/
 │   ├── pipeline/           # YAML workflow engine
 │   ├── admin/              # IT admin stats aggregation
 │   ├── audit/              # JSONL audit logger + redaction
-│   └── telemetry/          # Privacy-first local telemetry
+│   ├── telemetry/          # Privacy-first local telemetry
+│   ├── plugin/             # Plugin discovery, install, execution
+│   ├── shell/              # Interactive REPL session
+│   └── progress/           # Terminal progress bars + spinners
 ├── tests/                  # Smoke / integration tests
 ├── packages/core/          # TypeScript package (@m365kit/core)
 ├── examples/               # Pipeline YAML examples

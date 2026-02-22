@@ -7,6 +7,27 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ---
 
+## [1.2.0] — 2026-02-22
+
+### Added
+- `kit plugin` — Plugin system for custom commands (install/list/run/remove/show/new)
+- `kit shell` — Interactive REPL with persistent state, tab completion, command history
+- `kit shell --eval` — Non-interactive mode for scripting
+- Plugin scaffolding: `kit plugin new --type shell|go` generates complete project
+- Dynamic plugin registration: installed plugins appear as top-level kit commands
+- Progress bars and spinners (`internal/progress`) for long-running operations
+- `--no-progress` global flag to disable progress bars
+- docs/plugins.md — complete plugin authoring guide
+- Shell tab completion for all commands and subcommands
+- Shell history persisted in `~/.kit/shell_history`
+
+### Changed
+- Root command wired with plugin discovery and shell runner
+- New dependency: `github.com/chzyer/readline` for shell line editing
+- Test count: 295 → 348 (47 new plugin + shell + progress tests + 6 smoke tests)
+
+---
+
 ## [1.1.0] — 2026-02-22
 
 ### Added

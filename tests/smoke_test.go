@@ -55,6 +55,7 @@ func TestAllCommandsExist(t *testing.T) {
 		"send", "diff", "convert",
 		"config", "completion", "update", "doctor", "version",
 		"org", "audit", "admin",
+		"plugin", "shell",
 	}
 
 	stdout, _, code := run(t, "--help")
@@ -240,6 +241,10 @@ func TestAllCommandsHaveHelp(t *testing.T) {
 		{"audit", "log"}, {"audit", "clear"}, {"audit", "status"},
 		{"admin", "stats"}, {"admin", "users"},
 		{"admin", "telemetry", "status"}, {"admin", "telemetry", "clear"},
+		// Platform (v1.2)
+		{"plugin", "list"}, {"plugin", "new"}, {"plugin", "install"},
+		{"plugin", "remove"}, {"plugin", "run"}, {"plugin", "show"},
+		{"shell"},
 	}
 
 	for _, path := range commandPaths {
@@ -344,5 +349,83 @@ func TestOrgShowJSON(t *testing.T) {
 	}
 	if result["status"] != "community" {
 		t.Errorf("expected community status, got: %v", result["status"])
+	}
+}
+
+// TestPluginListEmpty validates empty plugin list.
+func TestPluginListEmpty(t *testing.T) {
+	stdout, _, code := run(t, "plugin", "list")
+	if code != 0 {
+		t.Fatal("kit plugin list should exit 0")
+	}
+	if !strings.Contains(stdout, "No plugins") {
+		t.Errorf("expected 'No plugins' message, got: %s", stdout)
+	}
+}
+
+// TestPluginNewShell validates plugin scaffold generation.
+func TestPluginNewShell(t *testing.T) {
+	tmp := t.TempDir()
+	stdout, _, code := run(t, "plugin", "new", "--name", "smoke-test", "--type", "shell", "-o", tmp)
+	if code != 0 {
+		t.Fatalf("kit plugin new should exit 0, got %d", code)
+	}
+	if !strings.Contains(stdout, "smoke-test") {
+		t.Errorf("expected scaffold output mentioning plugin name, got: %s", stdout)
+	}
+	// Verify files were created
+	execPath := filepath.Join(tmp, "smoke-test", "kit-smoke-test")
+	if _, err := os.Stat(execPath); os.IsNotExist(err) {
+		t.Error("plugin executable was not created")
+	}
+	manifestPath := filepath.Join(tmp, "smoke-test", "plugin.yaml")
+	if _, err := os.Stat(manifestPath); os.IsNotExist(err) {
+		t.Error("plugin.yaml was not created")
+	}
+}
+
+// TestPluginNewGo validates Go plugin scaffold generation.
+func TestPluginNewGo(t *testing.T) {
+	tmp := t.TempDir()
+	_, _, code := run(t, "plugin", "new", "--name", "go-test", "--type", "go", "-o", tmp)
+	if code != 0 {
+		t.Fatalf("kit plugin new --type go should exit 0, got %d", code)
+	}
+	mainPath := filepath.Join(tmp, "go-test", "main.go")
+	if _, err := os.Stat(mainPath); os.IsNotExist(err) {
+		t.Error("main.go was not created for Go plugin")
+	}
+}
+
+// TestShellEvalVersion validates shell --eval mode.
+func TestShellEvalVersion(t *testing.T) {
+	stdout, _, code := run(t, "shell", "--eval", "version")
+	if code != 0 {
+		t.Fatalf("kit shell --eval version should exit 0, got %d", code)
+	}
+	if !strings.Contains(stdout, "kit") {
+		t.Errorf("expected version output, got: %s", stdout)
+	}
+}
+
+// TestShellHelp validates shell --help.
+func TestShellHelp(t *testing.T) {
+	stdout, _, code := run(t, "shell", "--help")
+	if code != 0 {
+		t.Fatal("kit shell --help should exit 0")
+	}
+	if !strings.Contains(stdout, "interactive") || !strings.Contains(stdout, "REPL") {
+		t.Errorf("expected shell help to mention interactive/REPL, got: %s", stdout)
+	}
+}
+
+// TestNoProgressFlag validates --no-progress flag exists.
+func TestNoProgressFlag(t *testing.T) {
+	stdout, _, code := run(t, "--help")
+	if code != 0 {
+		t.Fatal("kit --help should exit 0")
+	}
+	if !strings.Contains(stdout, "no-progress") {
+		t.Error("expected --no-progress flag in help output")
 	}
 }
